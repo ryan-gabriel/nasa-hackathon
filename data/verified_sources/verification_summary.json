@@ -1,0 +1,48 @@
+{
+  "source": "NASA PDS Geosciences ODE REST (oderest.rsl.wustl.edu)",
+  "verified_live": true,
+  "queries": [
+    {
+      "name": "moon_lro_dlre_rdr4",
+      "url": "https://oderest.rsl.wustl.edu/live2/?query=product&results=m&target=moon&ihid=LRO&iid=DLRE&pt=RDR4&limit=5&output=JSON",
+      "status": "Success",
+      "saved": "data\\verified_sources\\moon_lro_dlre_rdr4.json",
+      "product_count_hint": 5
+    },
+    {
+      "name": "moon_lro_dlre_gdr_l3",
+      "url": "https://oderest.rsl.wustl.edu/live2/?query=product&results=m&target=moon&ihid=LRO&iid=DLRE&pt=GDR_L3&limit=5&output=JSON",
+      "status": "Success",
+      "saved": "data\\verified_sources\\moon_lro_dlre_gdr_l3.json",
+      "product_count_hint": 5
+    },
+    {
+      "name": "moon_lro_lroc_edrnac4",
+      "url": "https://oderest.rsl.wustl.edu/live2/?query=product&results=m&target=moon&ihid=LRO&iid=LROC&pt=EDRNAC4&limit=5&output=JSON",
+      "status": "Success",
+      "saved": "data\\verified_sources\\moon_lro_lroc_edrnac4.json",
+      "product_count_hint": 5
+    },
+    {
+      "name": "mars_mro_ctx_edr",
+      "url": "https://oderest.rsl.wustl.edu/live2/?query=product&results=m&target=mars&ihid=MRO&iid=CTX&pt=EDR&limit=5&output=JSON",
+      "status": "Success",
+      "saved": "data\\verified_sources\\mars_mro_ctx_edr.json",
+      "product_count_hint": 5
+    },
+    {
+      "name": "mars_mro_crism_trdr",
+      "url": "https://oderest.rsl.wustl.edu/live2/?query=product&results=m&target=mars&ihid=MRO&iid=CRISM&pt=TRDR&limit=5&output=JSON",
+      "status": "Success",
+      "saved": "data\\verified_sources\\mars_mro_crism_trdr.json",
+      "product_count_hint": 5
+    },
+    {
+      "name": "mars_mgs_mola_pedr",
+      "url": "https://oderest.rsl.wustl.edu/live2/?query=product&results=m&target=mars&ihid=MGS&iid=MOLA&pt=PEDR&limit=5&output=JSON",
+      "status": "Success",
+      "saved": "data\\verified_sources\\mars_mgs_mola_pedr.json",
+      "product_count_hint": 5
+    }
+  ]
+}

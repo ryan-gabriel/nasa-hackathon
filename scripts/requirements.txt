@@ -1,0 +1,5 @@
+# Python dependencies for web/scripts data retrieval helpers
+python-dotenv>=1.0.0
+# Optional (for authenticated Earthdata downloads/ETL in your own scripts):
+# earthaccess
+# rasterio xarray rioxarray geopandas h3 numpy pandas pyarrow

@@ -1,51 +1,81 @@
-# Running the Web App
+# Running the Web App (and retrieving data)
 
-The AnalogAtlas web app is a static/client-side app (React + Vite + TypeScript, MapLibre GL, ECharts) that loads **precomputed** data from `web/public/data/` (served as `data/*.geojson`). No backend is required.
+This guide covers running the AnalogAtlas web UI and using the included scripts to retrieve/verify NASA data (useful when `web/` is pushed as its own repo).
 
 ## Prerequisites
-- Node.js 18+ and npm (`node -v`, `npm -v`)
-- Internet access for basemap tiles (OpenStreetMap) and the optional NASA GIBS imagery overlay (verified NASA.gov source)
+- **Node.js + npm** (for the web app)
+- **Python 3.11+** (for `scripts/` data retrieval helpers)
+- Internet access for map tiles (OSM) and NASA GIBS overlay; public NASA APIs for verification/fetch
 
-## 1) Install dependencies (first time)
+## 1) Run the website
 ```powershell
 cd web
 npm install
-```
-
-## 2a) Development server
-```powershell
-cd web
 npm run dev
 ```
-Open the URL printed by Vite (typically http://localhost:5173).
+Open the URL Vite prints (typically http://localhost:5173). The app loads precomputed GeoJSON from `public/data/`.
 
-## 2b) Production build + preview
+Build & preview:
 ```powershell
-cd web
 npm run build
 npm run preview -- --host 127.0.0.1 --port 4173
 ```
-Open http://127.0.0.1:4173. Build output is in `web/dist`.
 
-## 2c) Serve the built `dist` folder
-Any static server works (must serve over HTTP so fetches succeed), e.g.:
+## 2) Configure `.env` (credentials/keys)
+1. Copy the template:
+   ```powershell
+   copy .env.example .env
+   ```
+2. Fill in values in `web/.env` as needed:
+   - `EARTHDATA_USERNAME` and `EARTHDATA_PASSWORD` **or** `EARTHDATA_TOKEN` — NASA Earthdata Login (for authenticated EO downloads via `earthaccess`)
+   - Optional: `COPERNICUS_*`, `JAXA_GPORTAL_*`
+
+**Important:**
+- `.env` is gitignored; never commit secrets.
+- Scripts auto-load `web/.env` (see `scripts/env.py`).
+- **Do not** add `VITE_` prefix and **do not** use these secrets in frontend/browser code.
+
+## 3) Retrieve/verify data using the script
+Install script dependencies once:
 ```powershell
-cd web
-npx serve dist
+python -m venv .venv
+.venv\Scripts\pip install -r scripts/requirements.txt
+# optional for authenticated Earthdata downloads later:
+# .venv\Scripts\pip install earthaccess
 ```
 
-## Features to try
-- **Target picker:** Mars (Jezero) / Moon (Shackleton rim).
-- **Parameters:** include/exclude scored dimensions and adjust weights (live re-ranking).
-- **Map:** H3 hexes colored by total score; toggle **NASA GIBS imagery (verified)** overlay.
-- **Details:** click a hex or ranked item for radar chart, matches/breakdowns, mission tags, provenance, Worldview/Earthdata links.
-- **Novelty:** hide known analogs; Pareto-front highlights in ranked list.
-- **Earth limits:** gravity, vacuum/pressure, radiation shown as NOT ANALOGUABLE.
+Run the orchestrator from `web/`:
+```powershell
+.venv\Scripts\python scripts/retrieve_data.py
+```
+What it does now (no credentials required):
+- Verifies NASA endpoints (GIBS, ODE REST)
+- Fetches **verified NASA PDS ODE product/metadata records** into `data/verified_sources/` (real NASA database records)
+- Reports whether Earthdata credentials are detected
 
-## Data & provenance
-- Scores/features loaded from `web/public/data/scores_mars_jezero.geojson` and `scores_moon_shackleton_rim.geojson`.
-- In this build, data is labeled `provenance: synthetic` (fallback). NASA GIBS overlay is a verified real NASA.gov imagery source (visual context). See `docs/DATA_SOURCES.md` and `docs/NASA_SOURCE_VERIFICATION.md`.
+Flags:
+- `--skip-verified-fetch` — skip ODE record fetch
 
-## Troubleshooting
-- **Blank map/hexes not loading:** ensure you are using `npm run dev`/`preview` or a static server (not `file://`), and that `data/*.geojson` files exist under `web/public/data/` (or `web/dist/data/` after build).
-- **GIBS overlay missing:** requires internet access to `gibs.earthdata.nasa.gov`; toggle it off/on in the map control.
+Individual scripts:
+- `scripts/nasa_sources.py` — endpoint verification
+- `scripts/fetch_nasa_verified.py` — fetch ODE records
+
+## 4) Where data is stored
+| Path | Purpose |
+|---|---|
+| `data/raw/` | Raw downloaded real products/rasters (put Earthdata/PDS files here) |
+| `data/interim/` | Intermediate/cache outputs |
+| `data/processed/` | Processed features/targets/scores |
+| `data/verified_sources/` | Verified NASA ODE product/metadata records (fetched) |
+| `public/data/` | GeoJSON consumed by the web UI |
+| `.env` | Local credentials (gitignored) |
+
+## 5) Real data vs fallback
+- **Available without auth:** NASA GIBS imagery (verified, used as map overlay) and ODE product/metadata records fetched by the script.
+- **Requires Earthdata Login/ETL:** raw numeric Earth EO datasets (MODIS, ASTER, SMAP, MERRA-2, GPM, ICESat-2, NASADEM, NSIDC, etc.). After authenticated download + processing, regenerate features/scores and update `public/data/*.geojson` so the web app uses real derived data.
+- **Targets:** verified ODE source records can be fetched; full pixel-level feature computation requires downloading referenced products.
+
+## 6) Web UI features
+- Target picker, per-parameter include/exclude + weights (live re-ranking), H3 score map, hex details (radar, matches/breakdowns, mission tags, provenance), NASA GIBS overlay toggle, novelty toggle, ranked list/Pareto, NOT-ANALOGUABLE Earth-limits panel.
+
+See also: `docs/DATA_SOURCES.md`, `docs/NASA_SOURCE_VERIFICATION.md`, `docs/DATA_DICTIONARY.md`, `docs/API_SOURCES.md`.
